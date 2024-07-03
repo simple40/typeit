@@ -68,6 +68,15 @@ chrono::time_point<chrono::high_resolution_clock> getInput(int nw, vector<string
             cout << " ";
             if (nw == 0) return startTime;
         }
+
+        else if (ch == 8) { // Backspace key
+            if (!word.empty()) {
+                word.pop_back();
+                // Move the cursor back, overwrite the character with space, and move the cursor back again
+                cout << "\b \b";
+            }
+        }
+
         else {
             word += ch;
             cout << ch;
@@ -107,15 +116,6 @@ int main() {
     //    setColor(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE); // Reset to default color
     //}
 
-    // Keep the console window open
-    //std::cin.get();
-
-
-    /*std::string ip;
-    std::getline(std::cin, ip);
-    std::cout << ip;*/
-
-    //auto startTime = chrono::high_resolution_clock::now();
 
     int noOfWords = textV.size();
     vector<string> input;
@@ -129,7 +129,6 @@ int main() {
         else
             cout << endl << input[i];
     }
-    //cout << correctWords << " " << noOfWords << endl;
     cout << endl << "Accuracy : " << (correctWords * 100 / noOfWords);
     
     auto endTime = chrono::high_resolution_clock::now();
@@ -137,13 +136,14 @@ int main() {
     auto duration = chrono::duration_cast<chrono::seconds>(endTime - startTime).count();
     int speed = (double)correctWords / ((double)duration / 60.0);
 
-    cout << "d: " << duration<<" c: "<<correctWords;
-
     cout << endl << "Speed : " << speed << "WPM" << endl;
 
     return 0;
 }
 
 
-// (*)first make a simple version and then iterate to make it better.
-// add time 
+// (*) first make a simple version and then iterate to make it better.
+// (*) add time 
+//  -  added backspace
+
+
