@@ -39,14 +39,53 @@ void convertTextToVector(string text, vector<string>& arr) {
     arr.push_back(word);
 }
 
-chrono::time_point<chrono::high_resolution_clock> getInput(int nw, vector<string>& input) {
+void changeTextColor(short x, short y, WORD color, string &ch) {
+    moveToPosition(x, y);
+    setColor(color);
+    cout << ch;
+    setColor(FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
+}
+
+void formatText(int nw, int ind, int l, char ch, vector<string>& text, COORD startPosition) {
+    
+    short pos = 0;
+    for (int i = 0; i < nw; i++) {
+        pos += text[i].size();
+    }
+
+    if (ind <= text[nw].size()) {
+        string t = "";
+        t += text[nw][ind];
+
+        pos += ind;
+        if (ch == text[nw][ind]) {
+            changeTextColor(startPosition.X + l, startPosition.Y - 1, FOREGROUND_GREEN | FOREGROUND_INTENSITY, t);
+        }
+        else {
+            changeTextColor(startPosition.X + l, startPosition.Y - 1, FOREGROUND_RED | FOREGROUND_INTENSITY, t);
+        }
+    }
+    else {
+        //pos += text[nw].size();
+        changeTextColor(startPosition.X + pos, startPosition.Y - 1, FOREGROUND_RED | FOREGROUND_INTENSITY, text[nw]);
+    }
+}
+
+chrono::time_point<chrono::high_resolution_clock> getInput(int nw, vector<string>& input, vector<string> &text,  COORD startPosition) {
 
     char ch;
     string word = "";
-    cout << nw << endl;
+    //cout << nw << endl;
 
     int start = false;
     chrono::time_point<std::chrono::high_resolution_clock> startTime;
+
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    GetConsoleScreenBufferInfo(hConsole, &csbi);
+    COORD inputStartPoint = csbi.dwCursorPosition;
+
+    int l = 0;
    
     while (true) {
         
@@ -74,13 +113,19 @@ chrono::time_point<chrono::high_resolution_clock> getInput(int nw, vector<string
                 word.pop_back();
                 // Move the cursor back, overwrite the character with space, and move the cursor back again
                 cout << "\b \b";
+                continue;
             }
         }
 
         else {
             word += ch;
             cout << ch;
+
+            formatText(text.size() - nw, word.size()-1, l, ch, text, startPosition);
         }
+
+        l++;
+        moveToPosition(inputStartPoint.X + l, inputStartPoint.Y);
     }
 }
 
@@ -100,11 +145,11 @@ int main() {
     // Print the text
     std::cout << text << std::endl;
 
-    // Save the starting cursor position
-    //CONSOLE_SCREEN_BUFFER_INFO csbi;
-    //HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    //GetConsoleScreenBufferInfo(hConsole, &csbi);
-    //COORD startPosition = csbi.dwCursorPosition;
+     //Save the starting cursor position
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    GetConsoleScreenBufferInfo(hConsole, &csbi);
+    COORD startPosition = csbi.dwCursorPosition;
 
     //// Modify part of the text (for demonstration, change "quick" to green)
     //std::string partToChange = "quick";
@@ -119,7 +164,7 @@ int main() {
 
     int noOfWords = textV.size();
     vector<string> input;
-    auto startTime = getInput(noOfWords, input);
+    auto startTime = getInput(noOfWords, input, textV, startPosition);
 
     int correctWords = 0;
 
@@ -145,5 +190,8 @@ int main() {
 // (*) first make a simple version and then iterate to make it better.
 // (*) add time 
 //  -  added backspace
+// () add some formatting in the text
+      // [*] what I can do is that check each input character whethe it match with the text and give color to it
+      // an error is occuring whe space is pressed.
 
 
